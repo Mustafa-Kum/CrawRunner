@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -7,17 +5,21 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
 
+    [Header("Components")]
+    [Space]
     public Player player;
-
     public UI_Main ui;
 
     [Header("Skybox Materials")]
+    [Space]
     [SerializeField] private Material[] skyBoxMat;
-    
+
     [Header("Purchased Color Info")]
+    [Space]
     public Color platformColor;
 
     [Header("Score Info")]
+    [Space]
     public float distance;
     public float score;
     public int coins;
@@ -25,18 +27,15 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
-
         Time.timeScale = 1;
-
         SetupSkyBox(PlayerPrefs.GetInt("SkyBoxSettings"));
-
-        //LoadColor();
+        LoadColor();
+        LoadPlatformColor();
     }
 
     private void Start()
     {
         QualitySettings.vSyncCount = 0;
-
         Application.targetFrameRate = 120;
     }
 
@@ -48,6 +47,23 @@ public class GameManager : MonoBehaviour
             RenderSettings.skybox = skyBoxMat[Random.Range(0, skyBoxMat.Length)];
 
         PlayerPrefs.SetInt("SkyBoxSettings", i);
+    }
+
+    public void SavePlatformColor(float r, float g, float b)
+    {
+        PlayerPrefs.SetFloat("PlatformColorR", r);
+        PlayerPrefs.SetFloat("PlatformColorG", g);
+        PlayerPrefs.SetFloat("PlatformColorB", b);
+    }
+
+    private void LoadPlatformColor()
+    {
+        Color platformColor = new Color(PlayerPrefs.GetFloat("PlatformColorR"),
+                                        PlayerPrefs.GetFloat("PlatformColorG"),
+                                        PlayerPrefs.GetFloat("PlatformColorB"),
+                                        PlayerPrefs.GetFloat("PlatformColorA", 1));
+
+        this.platformColor = platformColor;
     }
 
     public void SaveColor(float r, float g, float b)
@@ -85,11 +101,8 @@ public class GameManager : MonoBehaviour
     public void SaveInfo()
     {
         int savedCoins = PlayerPrefs.GetInt("Coins");
-
         PlayerPrefs.SetInt("Coins", savedCoins + coins);
-
-        score = distance * coins;
-
+        score = distance;
         PlayerPrefs.SetFloat("LastScore", score);
 
         if (PlayerPrefs.GetFloat("HighScore") < score)

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,21 +5,18 @@ using UnityEngine.UI;
 public class UI_InGame : MonoBehaviour
 {
     private Player player;
-    
+    private float distance;
+    private int coins;
+
+    [Header("InGame Info")]
     [SerializeField] private TextMeshProUGUI distanceText;
     [SerializeField] private TextMeshProUGUI coinsText;
-
     [SerializeField] private Image heartEmpty;
     [SerializeField] private Image heartFull;
-
-    private float distance;
-
-    private int coins;
 
     void Start()
     {
         player = GameManager.instance.player;
-
         InvokeRepeating("UpdateInfo", 0, .2f);
     }
 

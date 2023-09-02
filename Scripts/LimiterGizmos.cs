@@ -1,9 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class LimiterGizmos : MonoBehaviour
 {
+    [Header("Info")]
+    [Space]
     [SerializeField] private Transform start;
     [SerializeField] private Transform end;
     [SerializeField] private Transform groundLevel;
@@ -11,10 +11,10 @@ public class LimiterGizmos : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        
+
         Gizmos.DrawLine(start.position, new Vector2(start.position.x, start.position.y + 1000));
         Gizmos.DrawLine(start.position, new Vector2(start.position.x, start.position.y - 1000));
-        
+
         Gizmos.DrawLine(end.position, new Vector2(end.position.x, end.position.y + 1000));
         Gizmos.DrawLine(end.position, new Vector2(end.position.x, end.position.y - 1000));
 

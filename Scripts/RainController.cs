@@ -1,36 +1,26 @@
 using DigitalRuby.RainMaker;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class RainController : MonoBehaviour
 {
     private RainScript2D rainController => GetComponent<RainScript2D>();
-    
+    private float rainCheckTimer;
+    private bool canChangeIntensity;
+
+    [Header("Rain Info")]
     [Range(0.0f, 1.0f)]
     [SerializeField] private float intensity;
     [SerializeField] private float targetIntensity;
-    
     [SerializeField] private float changeRate = .05f;
     [SerializeField] private float minValue = .07f;
     [SerializeField] private float maxValue = .15f;
-
     [SerializeField] private float chanceToRain = 40;
     [SerializeField] private float rainCheckCooldown;
-    private float rainCheckTimer;
-
-    private bool canChangeIntensity;
 
     private void Update()
     {
         rainCheckTimer -= Time.deltaTime;
-        
         rainController.RainIntensity = intensity;
-        
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            canChangeIntensity = true;
-        }
 
         CheckForRain();
 
@@ -43,9 +33,8 @@ public class RainController : MonoBehaviour
         if (rainCheckTimer < 0)
         {
             rainCheckTimer = rainCheckCooldown;
-
             canChangeIntensity = true;
-            
+
             if (Random.Range(0, 100) < chanceToRain)
                 targetIntensity = Random.Range(minValue, maxValue);
             else
@@ -62,7 +51,6 @@ public class RainController : MonoBehaviour
             if (intensity >= targetIntensity)
             {
                 intensity = targetIntensity;
-
                 canChangeIntensity = false;
             }
         }
@@ -74,7 +62,6 @@ public class RainController : MonoBehaviour
             if (intensity <= targetIntensity)
             {
                 intensity = targetIntensity;
-
                 canChangeIntensity |= false;
             }
         }

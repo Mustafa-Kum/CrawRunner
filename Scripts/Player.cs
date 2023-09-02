@@ -1,6 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -8,8 +6,8 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     private Animator anim;
     private SpriteRenderer sr;
-
     private bool isDead;
+
     [HideInInspector] public bool playerUnlocked;
     [HideInInspector] public bool extraLife;
 
@@ -70,31 +68,23 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
-        anim = GetComponent<Animator>();
-        sr = GetComponent<SpriteRenderer>();
-
-        speedMilestone = milestoneIncreaser;
-        defaultSpeed = moveSpeed;
-        defaultMilestoneIncrease = milestoneIncreaser;
+        InitializeComponents();
+        InitializeDefaults();
     }
 
     void Update()
     {
         CheckCollision();
         AnimatorControllers();
+        HandleSlideAndJumpInput();
 
         slideTimeCounter -= Time.deltaTime;
         slideCooldownCounter -= Time.deltaTime;
-
         extraLife = moveSpeed >= speedToSurvive;
+    }
 
-        //if (Input.GetKeyDown(KeyCode.K))
-        //Knockback();
-
-        //if (Input.GetKeyDown(KeyCode.O) && !isDead)
-        //StartCoroutine(Die());
-
+    private void HandleSlideAndJumpInput()
+    {
         if (isDead)
             return;
 
@@ -108,13 +98,26 @@ public class Player : MonoBehaviour
             canDoubleJump = true;
 
         SpeedController();
-
         CheckForLedge();
         CheckForSlideCancel();
         CheckInput();
         CheckForLanding();
-
     }
+
+    private void InitializeDefaults()
+    {
+        speedMilestone = milestoneIncreaser;
+        defaultSpeed = moveSpeed;
+        defaultMilestoneIncrease = milestoneIncreaser;
+    }
+
+    private void InitializeComponents()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+        sr = GetComponent<SpriteRenderer>();
+    }
+
 
     private void CheckForLanding()
     {
@@ -124,7 +127,6 @@ public class Player : MonoBehaviour
         if (readyToLand && isGrounded)
         {
             dustFX.Play();
-
             readyToLand = false;
         }
     }
@@ -143,21 +145,16 @@ public class Player : MonoBehaviour
     {
         isDead = true;
         canBeKnocked = false;
-
         AudioManager.instance.PlaySFX(9);
 
         rb.velocity = knockbackDir;
-        
         anim.SetBool("isDead", true);
 
         Time.timeScale = 0.8f;
-
         yield return new WaitForSeconds(1f);
-
         Time.timeScale = 1f;
 
         rb.velocity = new Vector2(0, 0);
-
         GameManager.instance.GameEnded();
     }
 
@@ -205,11 +202,9 @@ public class Player : MonoBehaviour
             return;
 
         StartCoroutine(Invincibility());
-
         SpeedReset();
-        
+
         isKnocked = true;
-        
         rb.velocity = knockbackDir;
     }
 
@@ -222,7 +217,7 @@ public class Player : MonoBehaviour
     {
         if (isSliding)
             return;
-        
+
         moveSpeed = defaultSpeed;
         milestoneIncreaser = defaultMilestoneIncrease;
     }
@@ -252,7 +247,6 @@ public class Player : MonoBehaviour
         if (ledgeDetected && canGrabLedge)
         {
             canGrabLedge = false;
-            
             rb.gravityScale = 0;
 
             Vector2 ledgePosition = GetComponentInChildren<LedgeDetection>().transform.position;
@@ -270,11 +264,9 @@ public class Player : MonoBehaviour
     private void LedgeClimbOver()
     {
         canClimb = false;
-        
         rb.gravityScale = 5;
-        
         transform.position = climbOverPosition;
-        
+
         Invoke("AllowLedgeGrab", .1f);
     }
 
@@ -313,9 +305,8 @@ public class Player : MonoBehaviour
         if (rb.velocity.x != 0 && slideCooldownCounter < 0 && isGrounded)
         {
             dustFX.Play();
-            
+
             isSliding = true;
-            
             slideTimeCounter = slideTime;
             slideCooldownCounter = slideCooldown;
         }
@@ -335,7 +326,6 @@ public class Player : MonoBehaviour
         else if (canDoubleJump)
         {
             canDoubleJump = false;
-
             Jump(doubleJumpForce);
         }
     }
@@ -344,17 +334,13 @@ public class Player : MonoBehaviour
     {
         if (isGrounded)
             dustFX.Play();
-        
-        AudioManager.instance.PlaySFX(Random.Range(5, 6));
 
+        AudioManager.instance.PlaySFX(Random.Range(5, 6));
         rb.velocity = new Vector2(rb.velocity.x, force);
     }
 
     private void CheckInput()
     {
-        //if (Input.GetButtonDown("Fire2"))
-            //playerUnlocked = true;
-
         if (Input.GetButtonDown("Jump"))
             JumpButton();
 
@@ -362,7 +348,7 @@ public class Player : MonoBehaviour
             SlideButton();
     }
     #endregion
-    
+
     #region Animations
     private void AnimatorControllers()
     {
@@ -389,6 +375,7 @@ public class Player : MonoBehaviour
         ceillingDetected = Physics2D.Raycast(transform.position, Vector2.up, ceillingCheckDistance, whatIsGround);
         wallDetected = Physics2D.BoxCast(wallCheck.position, wallCheckSize, 0, Vector2.zero, 0, whatIsGround);
     }
+
     private void OnDrawGizmos()
     {
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));

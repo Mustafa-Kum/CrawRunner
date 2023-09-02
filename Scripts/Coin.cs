@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Coin : MonoBehaviour
@@ -9,9 +7,7 @@ public class Coin : MonoBehaviour
         if (collision.GetComponent<Player>() != null)
         {
             AudioManager.instance.PlaySFX(1);
-            
             GameManager.instance.coins++;
-            
             Destroy(gameObject);
         }
     }

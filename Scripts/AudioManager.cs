@@ -1,15 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager instance;
+    private int bgmIndex;
 
+    [Header("Components")]
+    [Space]
     [SerializeField] private AudioSource[] sfx;
     [SerializeField] private AudioSource[] bgm;
-
-    private int bgmIndex;
 
     private void Awake()
     {
@@ -25,7 +24,6 @@ public class AudioManager : MonoBehaviour
     public void PlayRandomBGM()
     {
         bgmIndex = Random.Range(0, bgm.Length);
-
         PlayBGM(bgmIndex);
     }
 
@@ -33,7 +31,8 @@ public class AudioManager : MonoBehaviour
     {
         if (index < sfx.Length)
         {
-            sfx[index].pitch = Random.Range(0.85f, 1.15f);
+            float pitch = Random.Range(0.85f, 1.15f);
+            sfx[index].pitch = pitch;
             sfx[index].Play();
         }
     }
@@ -49,7 +48,6 @@ public class AudioManager : MonoBehaviour
         {
             bgm[index].Stop();
         }
-
         bgm[index].Play();
     }
 

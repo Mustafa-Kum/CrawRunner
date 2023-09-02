@@ -1,9 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Trap : MonoBehaviour
 {
+    [Header("Spawn Info")]
+    [Space]
     [SerializeField] protected float chanceToSpawn = 50;
 
     protected virtual void Start()

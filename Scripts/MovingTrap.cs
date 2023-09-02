@@ -1,36 +1,47 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MovingTrap : Trap
 {
+    private int movePointIndex;
+    
+    [Header("Trap Info")]
+    [SerializeField] private Transform[] movePoint;
     [SerializeField] private float speed;
     [SerializeField] private float rotationSpeed;
-
-    private int i;
-
-    [SerializeField] private Transform[] movePoint;
 
     protected override void Start()
     {
         base.Start();
-        
-        transform.position = movePoint[0].position;
+        InitializeTrapPosition();
     }
 
     private void Update()
     {
-        transform.position = Vector3.MoveTowards(transform.position, movePoint[i].position, speed * Time.deltaTime);
+        MoveTowardsNextPoint();
+        RotateTrap();
+    }
+    
+    private void InitializeTrapPosition()
+    {
+        transform.position = movePoint[0].position;
+    }
 
-        if (Vector2.Distance(transform.position, movePoint[i].position) < .25f)
+    private void MoveTowardsNextPoint()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, movePoint[movePointIndex].position, speed * Time.deltaTime);
+
+        if (Vector2.Distance(transform.position, movePoint[movePointIndex].position) < .25f)
         {
-            i++;
+            movePointIndex++;
 
-            if (i >= movePoint.Length)
-                i = 0;
+            if (movePointIndex >= movePoint.Length)
+                movePointIndex = 0;
         }
+    }
 
-        if (transform.position.x > movePoint[i].position.x)
+    private void RotateTrap()
+    {
+        if (transform.position.x > movePoint[movePointIndex].position.x)
             transform.Rotate(new Vector3(0, 0, rotationSpeed * Time.deltaTime));
         else
             transform.Rotate(new Vector3(0, 0, -rotationSpeed * Time.deltaTime));

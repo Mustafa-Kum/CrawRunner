@@ -1,9 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlatformController : MonoBehaviour
 {
+    [Header("Components")]
+    [Space]
     [SerializeField] private SpriteRenderer sr;
     [SerializeField] private SpriteRenderer headerSr;
 

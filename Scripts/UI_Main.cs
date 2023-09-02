@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,15 +7,19 @@ public class UI_Main : MonoBehaviour
     private bool gamePaused;
     private bool gameMuted;
 
+    [Header("Components")]
+    [Space]
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject endGame;
 
+    [Header("Text Info")]
     [Space]
     [SerializeField] private TextMeshProUGUI lastScoreText;
     [SerializeField] private TextMeshProUGUI highScoreText;
     [SerializeField] private TextMeshProUGUI coinsText;
 
     [Header("Volume Info")]
+    [Space]
     [SerializeField] private UI_VolumeSlider[] slider;
     [SerializeField] private Image muteIcon;
     [SerializeField] private Image inGameMuteIcon;
@@ -44,7 +46,6 @@ public class UI_Main : MonoBehaviour
         }
 
         uiMenu.SetActive(true);
-
         AudioManager.instance.PlaySFX(8);
 
         coinsText.text = PlayerPrefs.GetInt("Coins").ToString("#,#");
@@ -53,29 +54,26 @@ public class UI_Main : MonoBehaviour
     public void SwitchSkyBox(int index)
     {
         AudioManager.instance.PlaySFX(8);
-
         GameManager.instance.SetupSkyBox(index);
     }
 
     public void MuteButton()
-    {    
+    {
         gameMuted = !gameMuted;
 
         if (gameMuted)
         {
             muteIcon.color = new Color(1, 1, 1, .5f);
-
             AudioListener.volume = 0;
         }
         else
         {
             muteIcon.color = Color.white;
-            
             AudioListener.volume = 1;
         }
     }
 
-    public void StartGameButton() 
+    public void StartGameButton()
     {
         muteIcon = inGameMuteIcon;
 
@@ -83,7 +81,7 @@ public class UI_Main : MonoBehaviour
             muteIcon.color = new Color(1, 1, 1, .5f);
 
         GameManager.instance.UnlockPlayer();
-    } 
+    }
 
     public void PauseGameButton()
     {

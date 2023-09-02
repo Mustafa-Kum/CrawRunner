@@ -6,12 +6,15 @@ using UnityEditor.Experimental.GraphView;
 
 public class LevelGenerator : MonoBehaviour
 {
+    [Header("Components")]
+    [Space]
+    [SerializeField] private Transform player;
+
+    [Header("Level Part Info")]
     [SerializeField] private Transform[] levelPart;
     [SerializeField] private Vector3 nextPartPosition;
-
     [SerializeField] private float distanceToSpawn;
     [SerializeField] private float distanceToDelete;
-    [SerializeField] private Transform player;
 
     void Update()
     {
@@ -24,12 +27,8 @@ public class LevelGenerator : MonoBehaviour
         while (Vector2.Distance(player.transform.position, nextPartPosition) < distanceToSpawn)
         {
             Transform part = levelPart[Random.Range(0, levelPart.Length)];
-
-
             Vector2 newPosition = new Vector2(nextPartPosition.x - part.Find("StartPoint").position.x, 0);
-
             Transform newPart = Instantiate(part, newPosition, transform.rotation, transform);
-
             nextPartPosition = newPart.Find("EndPoint").position;
         }
     }
