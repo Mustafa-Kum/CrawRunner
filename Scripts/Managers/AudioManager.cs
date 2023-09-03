@@ -42,13 +42,10 @@ public class AudioManager : MonoBehaviour
         sfx[index].Stop();
     }
 
-    public void PlayBGM(int index)
+    public void PlayBGM(int i)
     {
-        for (int i = 0; i < bgm.Length; i++)
-        {
-            bgm[index].Stop();
-        }
-        bgm[index].Play();
+        StopBGM();
+        bgm[i].Play();
     }
 
     public void StopBGM()

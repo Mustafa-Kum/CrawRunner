@@ -6,6 +6,7 @@ public class UI_Main : MonoBehaviour
 {
     private bool gamePaused;
     private bool gameMuted;
+    private float muteButtonAlpha;
 
     [Header("Components")]
     [Space]
@@ -24,7 +25,6 @@ public class UI_Main : MonoBehaviour
     [SerializeField] private Image muteIcon;
     [SerializeField] private Image inGameMuteIcon;
 
-
     private void Start()
     {
         for (int i = 0; i < slider.Length; i++)
@@ -36,6 +36,10 @@ public class UI_Main : MonoBehaviour
 
         lastScoreText.text = "Last Score : " + PlayerPrefs.GetFloat("LastScore").ToString("#,#");
         highScoreText.text = "High Score : " + PlayerPrefs.GetFloat("HighScore").ToString("#,#");
+
+        gameMuted = PlayerPrefs.GetInt("GameMuted", 0) == 1;
+        muteButtonAlpha = PlayerPrefs.GetFloat("MuteButtonAlpha", 1.0f);
+        UpdateMuteButtonAlpha();
     }
 
     public void SwitchMenuTo(GameObject uiMenu)
@@ -63,23 +67,33 @@ public class UI_Main : MonoBehaviour
 
         if (gameMuted)
         {
-            muteIcon.color = new Color(1, 1, 1, .5f);
+            muteButtonAlpha = 0.5f;
             AudioListener.volume = 0;
         }
         else
         {
-            muteIcon.color = Color.white;
+            muteButtonAlpha = 1.0f;
             AudioListener.volume = 1;
         }
+
+        PlayerPrefs.SetInt("GameMuted", gameMuted ? 1 : 0);
+        PlayerPrefs.SetFloat("MuteButtonAlpha", muteButtonAlpha);
+        PlayerPrefs.Save();
+
+        UpdateMuteButtonAlpha();
+    }
+
+    private void UpdateMuteButtonAlpha()
+    {
+        Color muteIconColor = muteIcon.color;
+        muteIconColor.a = muteButtonAlpha;
+        muteIcon.color = muteIconColor;
+
+        inGameMuteIcon.color = muteIconColor;
     }
 
     public void StartGameButton()
     {
-        muteIcon = inGameMuteIcon;
-
-        if (gameMuted)
-            muteIcon.color = new Color(1, 1, 1, .5f);
-
         GameManager.instance.UnlockPlayer();
     }
 

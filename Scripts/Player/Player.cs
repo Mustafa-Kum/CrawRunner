@@ -133,12 +133,13 @@ public class Player : MonoBehaviour
 
     public void Damage()
     {
-        bloodFX.Play();
-
-        if (extraLife)
-            Knockback();
-        else
-            StartCoroutine(Die());
+        if (canBeKnocked == true)
+        {
+            if (extraLife)
+                Knockback();
+            else
+                StartCoroutine(Die());
+        }
     }
 
     private IEnumerator Die()
@@ -149,6 +150,7 @@ public class Player : MonoBehaviour
 
         rb.velocity = knockbackDir;
         anim.SetBool("isDead", true);
+        bloodFX.Play();
 
         Time.timeScale = 0.8f;
         yield return new WaitForSeconds(1f);
@@ -165,6 +167,7 @@ public class Player : MonoBehaviour
         Color darkenColor = new Color(sr.color.r, sr.color.g, sr.color.b, .5f);
 
         canBeKnocked = false;
+        
         sr.color = darkenColor;
         yield return new WaitForSeconds(.1f);
 
@@ -198,11 +201,13 @@ public class Player : MonoBehaviour
 
     private void Knockback()
     {
+        bloodFX.Play();
+        
         if (!canBeKnocked)
             return;
 
-        StartCoroutine(Invincibility());
         SpeedReset();
+        StartCoroutine(Invincibility());
 
         isKnocked = true;
         rb.velocity = knockbackDir;

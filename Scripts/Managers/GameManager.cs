@@ -58,9 +58,9 @@ public class GameManager : MonoBehaviour
 
     private void LoadPlatformColor()
     {
-        Color platformColor = new Color(PlayerPrefs.GetFloat("PlatformColorR"),
-                                        PlayerPrefs.GetFloat("PlatformColorG"),
-                                        PlayerPrefs.GetFloat("PlatformColorB"),
+        Color platformColor = new Color(PlayerPrefs.GetFloat("PlatformColorR", 255),
+                                        PlayerPrefs.GetFloat("PlatformColorG", 255),
+                                        PlayerPrefs.GetFloat("PlatformColorB", 255),
                                         PlayerPrefs.GetFloat("PlatformColorA", 1));
 
         this.platformColor = platformColor;
@@ -77,9 +77,9 @@ public class GameManager : MonoBehaviour
     {
         SpriteRenderer sr = player.GetComponent<SpriteRenderer>();
 
-        Color newColor = new Color(PlayerPrefs.GetFloat("ColorR"),
-                                   PlayerPrefs.GetFloat("ColorG"),
-                                   PlayerPrefs.GetFloat("ColorB"),
+        Color newColor = new Color(PlayerPrefs.GetFloat("ColorR", 255),
+                                   PlayerPrefs.GetFloat("ColorG", 255),
+                                   PlayerPrefs.GetFloat("ColorB", 255),
                                    PlayerPrefs.GetFloat("ColorA", 1));
 
         sr.color = newColor;
