@@ -25,3 +25,11 @@ Download Link : https://lirnith.itch.io/
 - Gameplay Updates
   - Now you are invincible when you knocked for a 2 second.
   - Pause Game UI updated. Now you can enter shop while playing the game.
+ 
+ ## CrawRunner Mark - 1.3 Update Notes
+
+- Bug Fixes
+  - The mute key was not saved when exiting the game and entering it. Bug fixed.
+
+- Gameplay Updates
+  - Loading Screen added.
