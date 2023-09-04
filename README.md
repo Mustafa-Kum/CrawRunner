@@ -13,3 +13,15 @@ Download Link : https://lirnith.itch.io/
   - Colors you buy from the market are now saved.
   - Traps have been made more visible.
   - The price of colors in the market has been increased. ( 40 >> 400 )
+ 
+## CrawRunner Mark - 1.2 Update Notes
+
+- Bug Fixes
+  - At the beginning of the game, the character and the platform started with black color. A default value has been defined to PlayerPref.
+  - Background music bug fixed.
+  - Mute button visual bug fixed.
+  - Knockback did not decrease health, bug fixed.
+
+- Gameplay Updates
+  - Now you are invincible when you knocked for a 2 second.
+  - Pause Game UI updated. Now you can enter shop while playing the game.
