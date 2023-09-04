@@ -37,6 +37,8 @@ public class UI_Main : MonoBehaviour
         lastScoreText.text = "Last Score : " + PlayerPrefs.GetFloat("LastScore").ToString("#,#");
         highScoreText.text = "High Score : " + PlayerPrefs.GetFloat("HighScore").ToString("#,#");
 
+        float savedVolume = PlayerPrefs.GetFloat("AudioVolume", 1.0f);
+        AudioListener.volume = savedVolume;
         gameMuted = PlayerPrefs.GetInt("GameMuted", 0) == 1;
         muteButtonAlpha = PlayerPrefs.GetFloat("MuteButtonAlpha", 1.0f);
         UpdateMuteButtonAlpha();
@@ -76,6 +78,7 @@ public class UI_Main : MonoBehaviour
             AudioListener.volume = 1;
         }
 
+        PlayerPrefs.SetFloat("AudioVolume", AudioListener.volume);
         PlayerPrefs.SetInt("GameMuted", gameMuted ? 1 : 0);
         PlayerPrefs.SetFloat("MuteButtonAlpha", muteButtonAlpha);
         PlayerPrefs.Save();
