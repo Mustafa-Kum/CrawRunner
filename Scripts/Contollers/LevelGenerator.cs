@@ -1,22 +1,46 @@
+using System.Collections.Generic;
 using UnityEngine;
-
-#if UNITY_EDITOR
-using UnityEditor.Experimental.GraphView;
-#endif
 
 public class LevelGenerator : MonoBehaviour
 {
     [Header("Components")]
-    [Space]
     [SerializeField] private Transform player;
 
     [Header("Level Part Info")]
-    [SerializeField] private Transform[] levelPart;
+    [SerializeField] private List<GameObject> levelPartPrefabs; // Karýþýk sýrayla seviye parçalarýný içeren liste
     [SerializeField] private Vector3 nextPartPosition;
     [SerializeField] private float distanceToSpawn;
     [SerializeField] private float distanceToDelete;
+    [SerializeField] private int minPrefabIndex = 5; // Minimum prefab index
+    [SerializeField] private int maxPrefabIndex = 10; // Maximum prefab index
 
-    void Update()
+    private int generateCounter;
+    private Transform partToDelete;
+    private Vector2 newPosition;
+
+    private List<GameObject> levelPartPool; // Seviye parçalarýný nesne havuzunda saklamak için
+    private Dictionary<GameObject, GameObject> spawnedParts; // Seviye parçalarýný ve oluþturulan nesneleri izlemek için
+
+    private void Awake()
+    {
+        InitializeLevelPartPool();
+    }
+
+    private void InitializeLevelPartPool()
+    {
+        levelPartPool = new List<GameObject>();
+        spawnedParts = new Dictionary<GameObject, GameObject>();
+
+        foreach (GameObject levelPartPrefab in levelPartPrefabs)
+        {
+            GameObject newLevelPart = Instantiate(levelPartPrefab, transform);
+            newLevelPart.SetActive(false);
+            levelPartPool.Add(newLevelPart);
+            spawnedParts[levelPartPrefab] = newLevelPart;
+        }
+    }
+
+    private void Update()
     {
         DeletePlatform();
         GeneratePlatform();
@@ -24,23 +48,31 @@ public class LevelGenerator : MonoBehaviour
 
     private void GeneratePlatform()
     {
-        while (Vector2.Distance(player.transform.position, nextPartPosition) < distanceToSpawn)
+        if (Vector2.Distance(player.transform.position, nextPartPosition) < distanceToSpawn)
         {
-            Transform part = levelPart[Random.Range(0, levelPart.Length)];
-            Vector2 newPosition = new Vector2(nextPartPosition.x - part.Find("StartPoint").position.x, 0);
-            Transform newPart = Instantiate(part, newPosition, transform.rotation, transform);
-            nextPartPosition = newPart.Find("EndPoint").position;
+            int randomIndex = Random.Range(minPrefabIndex, maxPrefabIndex + 1); // Belirli aralýkta bir rastgele prefab
+            GameObject levelPartPrefab = levelPartPrefabs[randomIndex];
+
+            if (!spawnedParts[levelPartPrefab].activeSelf)
+            {
+                newPosition = new Vector2(nextPartPosition.x - levelPartPrefab.transform.Find("StartPoint").position.x, 0);
+                spawnedParts[levelPartPrefab].transform.position = newPosition;
+                spawnedParts[levelPartPrefab].SetActive(true);
+                nextPartPosition = spawnedParts[levelPartPrefab].transform.Find("EndPoint").position;
+                generateCounter++;
+                return; // Bir kez spawn ettiðimizde çýk
+            }
         }
     }
 
     private void DeletePlatform()
     {
-        if (transform.childCount > 0)
+        foreach (GameObject partToDelete in levelPartPool)
         {
-            Transform partToDelete = transform.GetChild(0);
-
-            if (Vector2.Distance(player.transform.position, partToDelete.transform.position) > distanceToDelete)
-                Destroy(partToDelete.gameObject);
+            if (partToDelete.activeSelf && Vector2.Distance(player.transform.position, partToDelete.transform.position) > distanceToDelete)
+            {
+                partToDelete.SetActive(false);
+            }
         }
     }
 }

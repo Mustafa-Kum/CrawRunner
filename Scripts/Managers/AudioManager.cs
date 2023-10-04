@@ -37,6 +37,16 @@ public class AudioManager : MonoBehaviour
         }
     }
 
+    public void PlaySFXSlide(int index)
+    {
+        if (index < sfx.Length)
+        {
+            float pitch = Random.Range(0.55f, 0.65f);
+            sfx[index].pitch = pitch;
+            sfx[index].Play();
+        }
+    }
+
     public void StopSFX(int index)
     {
         sfx[index].Stop();

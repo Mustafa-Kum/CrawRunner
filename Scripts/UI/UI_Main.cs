@@ -10,8 +10,9 @@ public class UI_Main : MonoBehaviour
 
     [Header("Components")]
     [Space]
-    [SerializeField] private GameObject mainMenu;
-    [SerializeField] private GameObject endGame;
+    public GameObject mainMenu;
+    public GameObject endGame;
+    public GameObject inGameUI;
 
     [Header("Text Info")]
     [Space]
@@ -34,8 +35,8 @@ public class UI_Main : MonoBehaviour
 
         SwitchMenuTo(mainMenu);
 
-        lastScoreText.text = "Last Score : " + PlayerPrefs.GetFloat("LastScore").ToString("#,#");
-        highScoreText.text = "High Score : " + PlayerPrefs.GetFloat("HighScore").ToString("#,#");
+        lastScoreText.text = ": " + PlayerPrefs.GetFloat("LastScore").ToString("#,#");
+        highScoreText.text = ": " + PlayerPrefs.GetFloat("HighScore").ToString("#,#");
 
         float savedVolume = PlayerPrefs.GetFloat("AudioVolume", 1.0f);
         AudioListener.volume = savedVolume;
@@ -52,15 +53,34 @@ public class UI_Main : MonoBehaviour
         }
 
         uiMenu.SetActive(true);
-        AudioManager.instance.PlaySFX(8);
+
+        if (GameManager.instance.player.isDead == false)
+            AudioManager.instance.PlaySFX(8);
 
         coinsText.text = PlayerPrefs.GetInt("Coins").ToString("#,#");
+    }
+
+    public void SwitchMenuToRespawn(GameObject uiMenu)
+    {
+        if (!GameManager.instance.player.respawnUsed)
+        {
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                transform.GetChild(i).gameObject.SetActive(false);
+            }
+
+            uiMenu.SetActive(true);
+
+            AudioManager.instance.PlaySFX(8);
+
+            coinsText.text = PlayerPrefs.GetInt("Coins").ToString("#,#");
+
+        }
     }
 
     public void SwitchSkyBox(int index)
     {
         AudioManager.instance.PlaySFX(8);
-        GameManager.instance.SetupSkyBox(index);
     }
 
     public void MuteButton()

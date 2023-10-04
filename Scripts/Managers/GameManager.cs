@@ -9,10 +9,8 @@ public class GameManager : MonoBehaviour
     [Space]
     public Player player;
     public UI_Main ui;
-
-    [Header("Skybox Materials")]
-    [Space]
-    [SerializeField] private Material[] skyBoxMat;
+    public UI_Shop uiShop;
+    public LevelGenerator levelGenerator;
 
     [Header("Purchased Color Info")]
     [Space]
@@ -24,46 +22,19 @@ public class GameManager : MonoBehaviour
     public float score;
     public int coins;
 
+    private Vector3 respawnPoint;
+
     private void Awake()
     {
         instance = this;
         Time.timeScale = 1;
-        SetupSkyBox(PlayerPrefs.GetInt("SkyBoxSettings"));
         LoadColor();
-        LoadPlatformColor();
     }
 
     private void Start()
     {
         QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 120;
-    }
-
-    public void SetupSkyBox(int i)
-    {
-        if (i <= 1)
-            RenderSettings.skybox = skyBoxMat[i];
-        else
-            RenderSettings.skybox = skyBoxMat[Random.Range(0, skyBoxMat.Length)];
-
-        PlayerPrefs.SetInt("SkyBoxSettings", i);
-    }
-
-    public void SavePlatformColor(float r, float g, float b)
-    {
-        PlayerPrefs.SetFloat("PlatformColorR", r);
-        PlayerPrefs.SetFloat("PlatformColorG", g);
-        PlayerPrefs.SetFloat("PlatformColorB", b);
-    }
-
-    private void LoadPlatformColor()
-    {
-        Color platformColor = new Color(PlayerPrefs.GetFloat("PlatformColorR", 255),
-                                        PlayerPrefs.GetFloat("PlatformColorG", 255),
-                                        PlayerPrefs.GetFloat("PlatformColorB", 255),
-                                        PlayerPrefs.GetFloat("PlatformColorA", 1));
-
-        this.platformColor = platformColor;
+        Application.targetFrameRate = 144;
     }
 
     public void SaveColor(float r, float g, float b)
@@ -111,7 +82,48 @@ public class GameManager : MonoBehaviour
 
     public void GameEnded()
     {
-        SaveInfo();
         ui.OpenEndGameUI();
+    }
+
+    public void SaveInfoButton()
+    {
+        SaveInfo();
+    }
+
+    private void OnEnable()
+    {
+        ADController.OnGaveReward += RewardCoin; // 200 Coin
+        ADController.OnGaveRewardRespawn += player.Respawn; // Respawn
+        ADController.OnGaveRewardRandomColor += RewardRandomColor; // RandomColor
+    }
+
+    private void OnDisable()
+    {
+        ADController.OnGaveReward -= RewardCoin; // 200 Coin
+        ADController.OnGaveRewardRespawn -= player.Respawn; // Respawn
+        ADController.OnGaveRewardRandomColor -= RewardRandomColor; // RandomColor
+    }
+
+    private void RewardCoin()
+    {
+        int rewardCoins = PlayerPrefs.GetInt("Coins");
+        PlayerPrefs.SetInt("Coins", rewardCoins + 200);
+    }
+
+    public void SetRespawnPoint(Vector3 point)
+    {
+        respawnPoint = point;
+    }
+
+    public void RespawnPlayer(GameObject player)
+    {
+        player.transform.position = respawnPoint;
+    }
+
+    public void RewardRandomColor()
+    {
+        int randomIndex = Random.Range(0, uiShop.playerColors.Length);
+        Color selectedColor = uiShop.playerColors[randomIndex].color;
+        uiShop.RewardRandomColor(selectedColor, 0, ColorType.playerColor);
     }
 }

@@ -6,7 +6,7 @@ public class CoinGenerator : MonoBehaviour
     [Space]
     [SerializeField] private GameObject coinPrefab;
     [SerializeField] private SpriteRenderer[] coinImage;
-    
+
     [Header("Coin Info")]
     [Space]
     [SerializeField] private int minCoins;
@@ -16,6 +16,8 @@ public class CoinGenerator : MonoBehaviour
     {
         CleanCoinImages();
         GenerateCoins();
+
+        InvokeRepeating("GenerateCoins", 45f, 45f);
     }
 
     private void CleanCoinImages()
@@ -37,5 +39,4 @@ public class CoinGenerator : MonoBehaviour
             Instantiate(coinPrefab, transform.position + offset, Quaternion.identity, transform);
         }
     }
-
 }

@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -6,7 +7,8 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     private Animator anim;
     private SpriteRenderer sr;
-    private bool isDead;
+    public bool isDead;
+    public bool respawnUsed = false;
 
     [HideInInspector] public bool playerUnlocked;
     [HideInInspector] public bool extraLife;
@@ -14,6 +16,8 @@ public class Player : MonoBehaviour
     [Header("VFX")]
     [SerializeField] private ParticleSystem dustFX;
     [SerializeField] private ParticleSystem bloodFX;
+    [SerializeField] private ParticleSystem starFX;
+    [SerializeField] private GameObject rainbowFX;
 
     [Header("Knockback info")]
     [SerializeField] private Vector2 knockbackDir;
@@ -21,8 +25,8 @@ public class Player : MonoBehaviour
     private bool canBeKnocked = true;
 
     [Header("Move info")]
+    public float moveSpeed;
     [SerializeField] private float speedToSurvive = 18;
-    [SerializeField] private float moveSpeed;
     [SerializeField] private float maxSpeed;
     [SerializeField] private float speedMultiplier;
     private float defaultSpeed;
@@ -66,10 +70,17 @@ public class Player : MonoBehaviour
     private bool canGrabLedge = true;
     private bool canClimb;
 
+    [Header("Respawn Info")]
+    public GameObject mainMenuButton;
+    public GameObject reviveButton;
+    [SerializeField] private TextMeshProUGUI countDown;
+
     void Start()
     {
         InitializeComponents();
         InitializeDefaults();
+
+        countDown.text = "";
     }
 
     void Update()
@@ -81,6 +92,8 @@ public class Player : MonoBehaviour
         slideTimeCounter -= Time.deltaTime;
         slideCooldownCounter -= Time.deltaTime;
         extraLife = moveSpeed >= speedToSurvive;
+
+
     }
 
     private void HandleSlideAndJumpInput()
@@ -89,6 +102,9 @@ public class Player : MonoBehaviour
             return;
 
         if (isKnocked)
+            return;
+
+        if (playerUnlocked == false)
             return;
 
         if (playerUnlocked)
@@ -118,7 +134,6 @@ public class Player : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
     }
 
-
     private void CheckForLanding()
     {
         if (rb.velocity.y < -5 && !isGrounded)
@@ -136,17 +151,20 @@ public class Player : MonoBehaviour
         if (canBeKnocked == true)
         {
             if (extraLife)
+            {
                 Knockback();
+            }
             else
+            {
                 StartCoroutine(Die());
+            }
         }
     }
 
-    private IEnumerator Die()
+    public IEnumerator Die()
     {
         isDead = true;
         canBeKnocked = false;
-        AudioManager.instance.PlaySFX(9);
 
         rb.velocity = knockbackDir;
         anim.SetBool("isDead", true);
@@ -157,7 +175,16 @@ public class Player : MonoBehaviour
         Time.timeScale = 1f;
 
         rb.velocity = new Vector2(0, 0);
-        GameManager.instance.GameEnded();
+        yield return new WaitForSeconds(0.6f);
+
+        if (isDead == true && !respawnUsed)
+        {
+            reviveButton.SetActive(true);
+            mainMenuButton.SetActive(true);
+        }
+        else if (isDead == true && respawnUsed)
+            GameManager.instance.ui.OpenEndGameUI();
+
     }
 
     #region Knockback
@@ -167,7 +194,7 @@ public class Player : MonoBehaviour
         Color darkenColor = new Color(sr.color.r, sr.color.g, sr.color.b, .5f);
 
         canBeKnocked = false;
-        
+
         sr.color = darkenColor;
         yield return new WaitForSeconds(.1f);
 
@@ -202,7 +229,8 @@ public class Player : MonoBehaviour
     private void Knockback()
     {
         bloodFX.Play();
-        
+        rainbowFX.SetActive(false);
+
         if (!canBeKnocked)
             return;
 
@@ -230,7 +258,20 @@ public class Player : MonoBehaviour
     private void SpeedController()
     {
         if (moveSpeed == maxSpeed)
+            rainbowFX.SetActive(true);
+
+        if (moveSpeed != maxSpeed)
+            rainbowFX.SetActive(false);
+
+        if (!extraLife || moveSpeed == maxSpeed)
+            starFX.Stop();
+
+        if (moveSpeed == maxSpeed)
             return;
+
+        if (extraLife)
+            starFX.Play();
+
 
         if (transform.position.x > speedMilestone)
         {
@@ -286,7 +327,6 @@ public class Player : MonoBehaviour
     }
     private void SetupMovement()
     {
-
         if (wallDetected)
         {
             SpeedReset();
@@ -311,6 +351,7 @@ public class Player : MonoBehaviour
         {
             dustFX.Play();
 
+            AudioManager.instance.PlaySFXSlide(Random.Range(5, 6));
             isSliding = true;
             slideTimeCounter = slideTime;
             slideCooldownCounter = slideCooldown;
@@ -347,10 +388,14 @@ public class Player : MonoBehaviour
     private void CheckInput()
     {
         if (Input.GetButtonDown("Jump"))
+        {
             JumpButton();
+        }
 
         if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
             SlideButton();
+        }
     }
     #endregion
 
@@ -367,7 +412,9 @@ public class Player : MonoBehaviour
         anim.SetBool("isKnocked", isKnocked);
 
         if (rb.velocity.y < -20)
+        {
             anim.SetBool("canRoll", true);
+        }
     }
 
     private void RollAnimFinished() => anim.SetBool("canRoll", false);
@@ -386,5 +433,35 @@ public class Player : MonoBehaviour
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y - groundCheckDistance));
         Gizmos.DrawLine(transform.position, new Vector2(transform.position.x, transform.position.y + ceillingCheckDistance));
         Gizmos.DrawWireCube(wallCheck.position, wallCheckSize);
+    }
+
+    public void Respawn()
+    {
+        if (!respawnUsed)
+        {
+            GameManager.instance.RespawnPlayer(this.gameObject);
+            isDead = false;
+            Destroy(mainMenuButton);
+            Destroy(reviveButton);
+            StartCoroutine(RespawnCooldown());
+            anim.SetBool("isDead", false);
+
+            respawnUsed = true;
+        }
+    }
+
+    private IEnumerator RespawnCooldown()
+    {
+        playerUnlocked = false;
+        countDown.text = "3";
+        yield return new WaitForSeconds(1f);
+        countDown.text = "2";
+        yield return new WaitForSeconds(1f);
+        countDown.text = "1";
+        yield return new WaitForSeconds(1f);
+        countDown.text = "";
+
+        StartCoroutine(Invincibility());
+        playerUnlocked = true;
     }
 }
